@@ -1,7 +1,6 @@
 from django.db.models import Count
 from django.shortcuts import render
 from blog.models import Post, Tag
-from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 
 
@@ -50,7 +49,7 @@ def index(request):
 def post_detail(request, slug):
     try:
         post = Post.objects.fetch_with_posts_count().get(slug=slug)
-    except ObjectDoesNotExist:
+    except Post.DoesNotExist:
         raise Http404("No PostModel matches the given query.")
 
     comments = post.comments.all().select_related('author')
@@ -93,7 +92,7 @@ def post_detail(request, slug):
 def tag_filter(request, tag_title):
     try:
         tag = Tag.objects.annotate(num_posts=Count('posts')).get(title=tag_title)
-    except ObjectDoesNotExist:
+    except Tag.DoesNotExist:
         raise Http404("No TagModel matches the given query.")
     most_popular_tags = Tag.objects.popular()[:5]
 
